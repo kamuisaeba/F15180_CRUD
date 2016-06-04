@@ -3,8 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#Ficheros Temporales
+*.~
+
 # C extensions
 *.so
+
 
 # Distribution / packaging
 .Python

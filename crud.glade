@@ -41,91 +41,115 @@
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkToolbar" id="Menú">
+          <object class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkToolButton" id="new">
+              <object class="GtkMenuItem" id="menuArchivo">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="tooltip_text" translatable="yes">Crea un nuevo usuario</property>
-                <property name="action_name">newSignal</property>
-                <property name="label" translatable="yes">Nuevo</property>
+                <property name="label" translatable="yes">_Archivo</property>
                 <property name="use_underline">True</property>
-                <property name="stock_id">gtk-add</property>
-                <signal name="clicked" handler="new_user" swapped="no"/>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menuArchivo_">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuNuevoUsuario">
+                        <property name="label">gtk-new</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <signal name="activate" handler="onNewUser" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="salir">
+                        <property name="label">gtk-quit</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <signal name="select" handler="onCloseMain" swapped="no"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="Editar">
+              <object class="GtkMenuItem" id="menuEditar">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="tooltip_text" translatable="yes">Edita la fila seleccionada</property>
-                <property name="action_name">EditSignal</property>
-                <property name="label" translatable="yes">Editar</property>
+                <property name="label" translatable="yes">_Editar</property>
                 <property name="use_underline">True</property>
-                <property name="stock_id">gtk-edit</property>
-                <signal name="clicked" handler="edit_user" swapped="no"/>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menuEditar_">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="Eliminar">
+                        <property name="label">gtk-delete</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <signal name="select" handler="onDelUser" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="Actualizar">
+                        <property name="label">gtk-refresh</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <signal name="select" handler="onRefresh" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="Editar">
+                        <property name="label">gtk-edit</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <signal name="select" handler="onEditUser" swapped="no"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="Eliminar">
+              <object class="GtkMenuItem" id="menuitem4">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="action_name">DeleteSignal</property>
-                <property name="label" translatable="yes">Eliminar</property>
+                <property name="label" translatable="yes">Ay_uda</property>
                 <property name="use_underline">True</property>
-                <property name="stock_id">gtk-delete</property>
-                <signal name="clicked" handler="del_user" swapped="no"/>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem10">
+                        <property name="label">gtk-about</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="Actualizar">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="action_name">RefreshSignal</property>
-                <property name="label" translatable="yes">Actualizar</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-refresh</property>
-                <signal name="clicked" handler="refresh_users" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="About">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="tooltip_text" translatable="yes">Sobre la aplicación</property>
-                <property name="label" translatable="yes">Acerca de</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-about</property>
-                <signal name="clicked" handler="open_about" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">1</property>
+            <property name="position">0</property>
           </packing>
         </child>
         <child>
@@ -185,15 +209,16 @@
       </object>
     </child>
   </object>
-  <object class="GtkAboutDialog" id="aboutdialog1">
+  <object class="GtkAboutDialog" id="aboutdialog">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">CRUD para curso Python</property>
     <property name="version">0.1</property>
     <property name="copyright" translatable="yes">Antonio Castillo Lora. junio 2016</property>
-    <property name="authors">Antonio Castillo Lora (@kamuisaeba)</property>
     <property name="logo_icon_name">x-office-address-book</property>
     <property name="license_type">mit-x11</property>
+    <signal name="close" handler="onCloseAboutResponse" swapped="no"/>
+    <signal name="response" handler="onCloseAboutResponse" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="about">
         <property name="can_focus">False</property>
@@ -202,6 +227,7 @@
         <child internal-child="action_area">
           <object class="GtkButtonBox" id="aboutdialog-action_area1">
             <property name="can_focus">False</property>
+            <property name="resize_mode">immediate</property>
             <property name="layout_style">end</property>
           </object>
           <packing>
@@ -258,7 +284,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="image">aceptar</property>
-                <signal name="activate" handler="save_form" swapped="no"/>
+                <signal name="clicked" handler="onSaveForm" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -273,7 +299,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="image">cancelar</property>
-                <signal name="activate" handler="cancel_form" swapped="no"/>
+                <signal name="clicked" handler="onCancelForm" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -491,7 +517,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="image">image1</property>
-                <signal name="activate" handler="del_confirm" swapped="no"/>
+                <signal name="activate" handler="onDelConfirm" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -506,7 +532,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="image">image2</property>
-                <signal name="activate" handler="del_cancel" swapped="no"/>
+                <signal name="activate" handler="onDelCancel" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
