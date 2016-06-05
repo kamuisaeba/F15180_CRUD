@@ -8,8 +8,8 @@ import MySQLdb
 class Handler:
     def __init__(self):
         # Iniciamos el GtkBuilder para tirar del fichero de glade
-        builder = Gtk.Builder()
-        builder.add_from_file("crud.glade")
+        self.builder = Gtk.Builder()
+        self.builder.add_from_file("crud.glade")
         self.handlers = {
             "onDeleteWindow": self.onDeleteWindow,
             "onOpenAbout": self.onOpenAbout,
@@ -22,28 +22,32 @@ class Handler:
             "onDelUser" : self.onDelUser,
             "onEditUser" : self.onEditUser,
             "onNewUser" : self.onNewUser,
-            "onCloseMain" : self.onDeleteWindow 
+            "onCloseMain" : self.onDeleteWindow,
+            "onSelectTableRow" : self.onSelectTableRow
         }
-        builder.connect_signals(self.handlers)
+        self.builder.connect_signals(self.handlers)
 
         #configure windows
-        self.window  = builder.get_object("principal")
-        self.about   = builder.get_object("aboutdialog")
-        self.form    = builder.get_object("newEditForm")
-        self.delform = builder.get_object("DeleteDialog")
+        self.window  = self.builder.get_object("principal")
+        self.about   = self.builder.get_object("aboutdialog")
+        self.form    = self.builder.get_object("newEditForm")
+        self.delform = self.builder.get_object("DeleteDialog")
+
 
         #Generamos el item del combo
         query= "SELECT pkUser FROM user;" 
         micursor = Conexion.cursor()   
         micursor.execute(query);
         bdData = micursor.fetchall()
+        Conexion.commit()
         micursor.close()
-        self.comboboxFila = builder.get_object("comboboxFila")
+        self.comboboxFila = self.builder.get_object("comboboxFila")
         set_combo_from_list(self.comboboxFila,bdData)
 
         #Generamos el iterador para el modelo TreeView
-        self.treeview  = builder.get_object('VistaTabla')
-        self.store = builder.get_object('Datos')
+        self.treeview  = self.builder.get_object('VistaTabla')
+        self.store = self.builder.get_object('Datos')
+        initColumns(self)
         refresh(self)
 
         #Mostramos la ventana inicial
@@ -57,6 +61,10 @@ class Handler:
     #EVENTOS VENTANA FORMULARIO
     def onSaveForm(self,*args):
         print 'save form'
+        create_user(self,*args)
+        refresh(self)
+        self.form.hide()
+
     def onCancelForm(self,*args):
         self.form.hide()
         print 'cancel_form'
@@ -71,12 +79,16 @@ class Handler:
     #EVENTOS MENU
     def onRefresh(self,*args):
         print 'refresh_users'
+        refresh(self)
+
     def onDelUser(self,*args):
         print 'del_user'
         self.delform.show()
+
     def onEditUser(self,*args):
         self.form.show()
         print 'edit_user'  
+
     def onNewUser(self,*args):
         self.form.show()
         print 'new_user'
@@ -88,6 +100,10 @@ class Handler:
     def onCloseAboutResponse(self,window,data=None):
         print 'closeAbout'
         self.about.hide()
+
+    def onSelectTableRow(self,*args):
+        return 0
+
 
 
 
@@ -102,20 +118,51 @@ def set_combo_from_list (cb, items):
     """Setup a ComboBox or ComboBoxEntry based on a list of strings."""           
     model = Gtk.ListStore(int)
     for i in items:
-        print i
         model.append(i)
     cb.set_model(model)
     cell = Gtk.CellRendererText()
     cb.pack_start(cell, True)
     cb.add_attribute(cell, 'text', 0)
 
-def create_user():
-    return 0
+def create_user(self,*args):
+    nombre = self.builder.get_object("form_nombre").get_text()
+    apellidos = self.builder.get_object("form_apellidos").get_text()
+    edad = self.builder.get_object("form_edad").get_text()
+    color = self.builder.get_object("form_color").get_color().to_string()
+    if self.builder.get_object("form_sexoH").get_active():
+        sexo = 'Hombre'
+    else:
+        sexo = 'Mujer'
+    query = "insert into user (nombre,apellidos,edad,color,sexo) values ("\
+        +"'"+nombre+"',"\
+        +"'"+apellidos+"',"\
+        +""+edad+","\
+        +"'"+color+"',"\
+        +"'"+sexo+"');"
+    print query
+    micursor = Conexion.cursor()
+    micursor.execute(query)
+    Conexion.commit()
+    micursor.close()
+
+
+def initColumns(cb,*args):
+    for index,col in enumerate (cb.treeview.get_columns()):
+        print col
+        print index
+        cell = Gtk.CellRendererText()
+        col.pack_start (cell,True)
+        # Attributes for the column - make it display text of column 0
+        # from the model
+        col.add_attribute (cell, "text", index)    
+
 def refresh(cb,*args):
+    print 'refreshing'
     query = "select nombre,apellidos,edad,color,sexo from user"
     micursor = Conexion.cursor(MySQLdb.cursors.DictCursor)  
     micursor.execute(query);
     bdData = micursor.fetchall()
+    cb.store.clear()
     for currentData in bdData:
         print currentData
         cb.store.append([currentData['nombre'],
@@ -124,10 +171,8 @@ def refresh(cb,*args):
             currentData['color'],
             currentData['sexo']
             ])
-    for i, column_title in enumerate(["Nombre","Apellidos","Edad","Color","Sexo"]):
-            renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(column_title, renderer, text=i)
-            cb.treeview.append_column(column)
+    micursor.close()
+    Conexion.commit()
 
 
 
