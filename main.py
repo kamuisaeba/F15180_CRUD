@@ -10,6 +10,11 @@ class Handler:
         # Iniciamos el GtkBuilder para tirar del fichero de glade
         self.builder = Gtk.Builder()
         self.builder.add_from_file("crud.glade")
+
+        self.selectedRow = None
+
+
+
         self.handlers = {
             "onDeleteWindow": self.onDeleteWindow,
             "onOpenAbout": self.onOpenAbout,
@@ -32,7 +37,7 @@ class Handler:
         self.about   = self.builder.get_object("aboutdialog")
         self.form    = self.builder.get_object("newEditForm")
         self.delform = self.builder.get_object("DeleteDialog")
-
+        self.errorMessage = self.builder.get_object("ErrorMessage")
 
         #Generamos el item del combo
         query= "SELECT pkUser FROM user;" 
@@ -72,6 +77,19 @@ class Handler:
     #EVENTOS VENTANA ELIMINAR
     def onDelconfirm(self,*args):
         print 'del confirm'
+        if not self.selectedRow:
+            self.errorMessage.show()
+            return 0
+        query = "delete from user where pkUser = "+ str(self.selectedRow)
+        micursor = Conexion.cursor()
+        micursor.execute(query)
+        Conexion.commit()
+        micursor.close()
+        self.delform.hide()
+        refresh(self)
+        delete_from_combo(self,self.builder.get_object("comboboxFila"))
+        self.selectedRow = None
+
     def onDelCancel(self,*args):
         self.delform.hide()
         print 'del cancel'   
@@ -86,6 +104,7 @@ class Handler:
         self.delform.show()
 
     def onEditUser(self,*args):
+
         self.form.show()
         print 'edit_user'  
 
@@ -101,8 +120,15 @@ class Handler:
         print 'closeAbout'
         self.about.hide()
 
-    def onSelectTableRow(self,*args):
-        return 0
+    #Atendemos al posible cambio del combobox de items
+    def onSelectTableRow(self,combo):
+        tree_iter = combo.get_active_iter()
+
+        if tree_iter != None:
+            model = combo.get_model()
+            row_id = model[tree_iter][0]
+            print("Selected: ID=%d" % (row_id))
+            self.selectedRow = row_id
 
 
 
@@ -113,6 +139,18 @@ def main():
     micursor.close()
     return 0
 
+
+def delete_from_combo(cb,combo):
+    print 'delete from combo'
+    tree_iter = combo.get_active_iter()
+    model = combo.get_model()
+    model.remove(tree_iter)
+def add_to_combo(cb,combo,id):
+    print 'add to combo'
+    print id
+    model = combo.get_model()
+    print model
+    model.append([id])
 
 def set_combo_from_list (cb, items):
     """Setup a ComboBox or ComboBoxEntry based on a list of strings."""           
@@ -143,6 +181,7 @@ def create_user(self,*args):
     micursor = Conexion.cursor()
     micursor.execute(query)
     Conexion.commit()
+    add_to_combo(self,self.builder.get_object("comboboxFila"),micursor.lastrowid)
     micursor.close()
 
 
@@ -155,6 +194,7 @@ def initColumns(cb,*args):
         # Attributes for the column - make it display text of column 0
         # from the model
         col.add_attribute (cell, "text", index)    
+
 
 def refresh(cb,*args):
     print 'refreshing'
