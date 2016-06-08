@@ -63,7 +63,7 @@ class Handler:
     #Inicia el combo
     def init_combo (self):
         """Setup a ComboBox or ComboBoxEntry based on a list of strings."""  
-        query= "SELECT pkUser FROM user;" 
+        query= "SELECT pkUser FROM crudtable;" 
         micursor = Conexion.cursor()   
         micursor.execute(query);
         items = micursor.fetchall()
@@ -84,11 +84,8 @@ class Handler:
         Gtk.main_quit(*args)
     #EVENTOS VENTANA FORMULARIO
     def onSaveForm(self,*args):
-        print 'save form'
-        if validate_form(self):
-            create_user(self,*args)
-            refresh(self)
-            self.form.hide()
+        create_edit_user(self,*args)
+
 
     def onCancelForm(self,*args):
         self.form.hide()
@@ -99,9 +96,10 @@ class Handler:
         print 'del confirm'
         if not self.selectedRow:
             self.delform.hide()
+            self.errorMessage.format_secondary_text("Seleccione una fila en el combobox")
             self.errorMessage.show()
             return 0
-        query = "delete from user where pkUser = "+ str(self.selectedRow)
+        query = "delete from crudtable where pkUser = "+ str(self.selectedRow)
         micursor = Conexion.cursor()
         micursor.execute(query)
         Conexion.commit()
@@ -127,6 +125,7 @@ class Handler:
     def onEditUser(self,*args):
         clear_form(self)
         self.builder.get_object("filaSeleccionada").set_text(str(self.selectedRow))
+        actualizaDatos(self)
         self.form.show()
         print 'edit_user'  
 
@@ -169,7 +168,8 @@ def delete_from_combo(cb,combo):
     print 'delete from combo'
     tree_iter = combo.get_active_iter()
     model = combo.get_model()
-    model.remove(tree_iter)
+    if tree_iter:
+        model.remove(tree_iter)
 
 
 #añade item al combo
@@ -185,7 +185,7 @@ def add_to_combo(cb,combo,id):
 def refresh_combo(combo):
     model = combo.get_model()
     model.clear()
-    query = "SELECT pkUser FROM user;" 
+    query = "SELECT pkUser FROM crudtable;" 
     micursor = Conexion.cursor()
     micursor.execute(query)
     bdData = micursor.fetchall()
@@ -197,34 +197,81 @@ def refresh_combo(combo):
 
 
 #Crea un usuario desde el formulario
-def create_user(self,*args):
+def create_edit_user(self,*args):
     nombre = self.builder.get_object("form_nombre").get_text()
     apellidos = self.builder.get_object("form_apellidos").get_text()
     edad = self.builder.get_object("form_edad").get_text()
-    color = self.builder.get_object("form_color").get_color().to_string()
-    if self.builder.get_object("form_sexoH").get_active():
-        sexo = 'Hombre'
+    if self.builder.get_object("form_activo").get_active():
+        activo = 1
     else:
-        sexo = 'Mujer'
-    query = "insert into user (nombre,apellidos,edad,color,sexo) values ("\
-        +"'"+nombre+"',"\
-        +"'"+apellidos+"',"\
-        +""+edad+","\
-        +"'"+color+"',"\
-        +"'"+sexo+"');"
-    print query
-    micursor = Conexion.cursor()
-    micursor.execute(query)
-    Conexion.commit()
-    add_to_combo(self,self.builder.get_object("comboboxFila"),micursor.lastrowid)
-    micursor.close()
+        activo = 0
+    active_radios = [r for r in self.builder.get_object("form_sexoH").get_group() if r.get_active()]
+    sexo = active_radios[0].get_label()
+    filaSeleccionada = self.builder.get_object('filaSeleccionada').get_text()
+    messageError = validate_form(nombre = nombre,
+        apellidos = apellidos,
+        edad = edad,
+        activo = activo,
+        sexo = sexo)
+    print messageError
+    if messageError is not None:
+        self.errorMessage.format_secondary_text(messageError)
+        self.errorMessage.show()
+        print 'ERROR!!!'
+        print messageError
+    else:
+        if filaSeleccionada:
+            query = "update crudtable "\
+                +"set nombre = '"+nombre+"',"\
+                +"apellidos = '"+apellidos+"',"\
+                +"edad = "+edad+","\
+                +"activo = '"+activo+"',"\
+                +"sexo ='"+sexo+"'"\
+                +" where pkUser = "+filaSeleccionada+";"
+            print query
+        else:
+            query = "insert into crudtable (nombre,apellidos,edad,activo,sexo) values ("\
+                +"'"+nombre+"',"\
+                +"'"+apellidos+"',"\
+                +""+edad+","\
+                +""+str(activo)+","\
+                +"'"+sexo+"');"
+
+
+        micursor = Conexion.cursor()
+        micursor.execute(query)
+        Conexion.commit()
+        #add_to_combo(self,self.builder.get_object("comboboxFila"),micursor.lastrowid)
+        micursor.close()
+        refresh(self)
+        self.form.hide()  
+
+def actualizaDatos(self):
+    query = "select pkUser,nombre,apellidos,edad,activo,sexo from crudtable where pkUser = " + str(self.selectedRow)
+    micursor = Conexion.cursor(MySQLdb.cursors.DictCursor)  
+    micursor.execute(query);
+    bdData = micursor.fetchone()
+    nombre = self.builder.get_object("form_nombre").set_text(bdData['nombre'])
+    apellidos = self.builder.get_object("form_apellidos").set_text(bdData['apellidos'])
+    edad = self.builder.get_object("form_edad").set_text(str(bdData['edad']))
+    self.builder.get_object("form_activo").set_active(bdData['activo'])
+
+    if bdData['sexo'].upper() == 'HOMBRE':
+        self.builder.get_object("form_sexoH").set_active("Hombre")
+    elif bdData['sexo'].upper() == 'MUJER':
+        self.builder.get_object("form_sexoM").set_active("Mujer")
+    else:
+        self.builder.get_object("form_sexoO").set_active("Otro")
+    #active_radios = [r for r in self.builder.get_object("form_sexoH").get_group() if r.get_active()]
+    #sexo = active_radios[0].get_label()
+ 
 
 
 
 #Refresca los datos (combo y tabla)
 def refresh(cb,*args):
     print 'refreshing'
-    query = "select pkUser,nombre,apellidos,edad,color,sexo from user"
+    query = "select pkUser,nombre,apellidos,edad,activo,sexo from crudtable"
     micursor = Conexion.cursor(MySQLdb.cursors.DictCursor)  
     micursor.execute(query);
     bdData = micursor.fetchall()
@@ -236,7 +283,7 @@ def refresh(cb,*args):
             currentData['nombre'],
             currentData['apellidos'],
             currentData['edad'],
-            currentData['color'],
+            currentData['activo'],
             currentData['sexo']
             ])
     micursor.close()
@@ -250,15 +297,24 @@ def clear_form(window):
     window.builder.get_object("form_nombre").set_text('')
     window.builder.get_object("form_apellidos").set_text('')
     window.builder.get_object("form_edad").set_text('')
+    window.builder.get_object("filaSeleccionada").set_text('')
 
 
 #Valida los datos del formulario
-def validate_form(cb):
-    print 'validate'
-    return None
-
-
-
+def validate_form(nombre,apellidos,edad,activo,sexo,*args):
+    messageError = ''
+    if not nombre:
+        messageError = messageError + 'Nombre no incluido\n'
+    if not apellidos:
+        messageError = messageError + 'Appellidos no incluidos\n'
+    if not edad:
+        messageError = messageError + 'Edad no incluida\n'
+    if not sexo:
+        messageError = messageError + 'Sexo no incluido\n'
+    if messageError == '':
+        return None
+    messageError = 'Error al validar los datos del usuario \n' + messageError
+    return messageError
 
 if __name__ == '__main__':
     Conexion = MySQLdb.connect(host='localhost', user='acastillo', passwd ='acastillo', db='crud')  

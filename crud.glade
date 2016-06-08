@@ -12,7 +12,7 @@
       <column type="gchararray"/>
       <!-- column-name Edad -->
       <column type="gint"/>
-      <!-- column-name Color -->
+      <!-- column-name activo -->
       <column type="gchararray"/>
       <!-- column-name Sexo -->
       <column type="gchararray"/>
@@ -234,13 +234,13 @@
               </object>
             </child>
             <child>
-              <object class="GtkTreeViewColumn" id="Sexo">
-                <property name="title" translatable="yes">Sexo</property>
+              <object class="GtkTreeViewColumn" id="Activo">
+                <property name="title" translatable="yes">Activo</property>
               </object>
             </child>
             <child>
-              <object class="GtkTreeViewColumn" id="Color">
-                <property name="title" translatable="yes">Color</property>
+              <object class="GtkTreeViewColumn" id="Sexo">
+                <property name="title" translatable="yes">Sexo</property>
               </object>
             </child>
           </object>
@@ -256,7 +256,6 @@
   </object>
   <object class="GtkMessageDialog" id="ErrorMessage">
     <property name="can_focus">False</property>
-    <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
     <property name="deletable">False</property>
     <property name="message_type">error</property>
@@ -334,6 +333,89 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="stock">gtk-cancel</property>
+  </object>
+  <object class="GtkImage" id="image1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-ok</property>
+  </object>
+  <object class="GtkImage" id="image2">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-cancel</property>
+  </object>
+  <object class="GtkDialog" id="DeleteDialog">
+    <property name="can_focus">False</property>
+    <property name="resizable">False</property>
+    <property name="default_width">320</property>
+    <property name="default_height">260</property>
+    <property name="type_hint">popup-menu</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="deleteRow">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area1">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="ConfirmDel">
+                <property name="label" translatable="yes">Aceptar</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="image">image1</property>
+                <signal name="clicked" handler="onDelConfirm" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="CancelDel">
+                <property name="label" translatable="yes">Cancelar</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="image">image2</property>
+                <signal name="clicked" handler="onDelCancel" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">¿Desea eliminar el usuario de la lista?</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkAdjustment" id="valores de edad">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
   </object>
   <object class="GtkDialog" id="newEditForm">
     <property name="can_focus">False</property>
@@ -452,7 +534,7 @@
               <object class="GtkLabel" id="label6">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Color</property>
+                <property name="label" translatable="yes">activo</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -478,66 +560,12 @@
               <object class="GtkSpinButton" id="form_edad">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="input_purpose">digits</property>
+                <property name="adjustment">valores de edad</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="top_attach">2</property>
-                <property name="width">1</property>
-                <property name="height">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkColorButton" id="form_color">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">3</property>
-                <property name="width">1</property>
-                <property name="height">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkPaned" id="paned1">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <child>
-                  <object class="GtkRadioButton" id="form_sexoH">
-                    <property name="label" translatable="yes">Hombre</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="xalign">0</property>
-                    <property name="active">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="resize">False</property>
-                    <property name="shrink">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkRadioButton" id="form_sexoM">
-                    <property name="label" translatable="yes">Mujer</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="xalign">0</property>
-                    <property name="active">True</property>
-                    <property name="draw_indicator">True</property>
-                    <property name="group">form_sexoH</property>
-                  </object>
-                  <packing>
-                    <property name="resize">True</property>
-                    <property name="shrink">True</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">4</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
@@ -579,6 +607,85 @@
               </packing>
             </child>
             <child>
+              <object class="GtkToggleButton" id="form_activo">
+                <property name="label" translatable="yes">activo</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">3</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkGrid" id="grid2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkRadioButton" id="form_sexoH">
+                    <property name="label" translatable="yes">Hombre</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0</property>
+                    <property name="active">True</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkRadioButton" id="form_sexoM">
+                    <property name="label" translatable="yes">Mujer</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0</property>
+                    <property name="active">True</property>
+                    <property name="draw_indicator">True</property>
+                    <property name="group">form_sexoH</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkRadioButton" id="form_sexoO">
+                    <property name="label" translatable="yes">Otro</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0</property>
+                    <property name="active">True</property>
+                    <property name="draw_indicator">True</property>
+                    <property name="group">form_sexoH</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">0</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">4</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
               <placeholder/>
             </child>
           </object>
@@ -586,84 +693,6 @@
             <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">2</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
-  <object class="GtkImage" id="image1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-ok</property>
-  </object>
-  <object class="GtkImage" id="image2">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-cancel</property>
-  </object>
-  <object class="GtkDialog" id="DeleteDialog">
-    <property name="can_focus">False</property>
-    <property name="resizable">False</property>
-    <property name="default_width">320</property>
-    <property name="default_height">260</property>
-    <property name="type_hint">popup-menu</property>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="deleteRow">
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area1">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="ConfirmDel">
-                <property name="label" translatable="yes">Aceptar</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="image">image1</property>
-                <signal name="clicked" handler="onDelConfirm" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="CancelDel">
-                <property name="label" translatable="yes">Cancelar</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="image">image2</property>
-                <signal name="clicked" handler="onDelCancel" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="label1">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">¿Desea eliminar el usuario de la lista?</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
           </packing>
         </child>
       </object>
