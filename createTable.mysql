@@ -1,0 +1,3 @@
+ create database IF NOT EXISTS crud;
+ use crud;
+ create table IF NOT EXISTS crudtable (pkUser int primary key auto_increment, apellidos varchar(255),edad int,activo bit,sexo varchar(255));
