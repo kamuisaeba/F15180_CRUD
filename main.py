@@ -180,7 +180,7 @@ def refresh_combo(combo):
     model = combo.get_model()
     model.clear()
     query = "SELECT pkUser FROM crudtable;" 
-    bdData = run_query(query,0)
+    bdData = run_query(query,dict = 0)
     for i in bdData:
         print i
         model.append(i)
@@ -212,13 +212,14 @@ def create_edit_user(self,*args):
         print messageError
     else:
         if filaSeleccionada:
+            print filaSeleccionada
             query = "update crudtable "\
                 +"set nombre = '"+nombre+"',"\
                 +"apellidos = '"+apellidos+"',"\
-                +"edad = "+edad+","\
-                +"activo = '"+activo+"',"\
+                +"edad = "+ str(edad)+","\
+                +"activo = '"+str(activo)+"',"\
                 +"sexo ='"+sexo+"'"\
-                +" where pkUser = "+filaSeleccionada+";"
+                +" where pkUser = "+ str(filaSeleccionada) +";"
             print query
         else:
             query = "insert into crudtable (nombre,apellidos,edad,activo,sexo) values ("\
@@ -235,6 +236,7 @@ def create_edit_user(self,*args):
 def actualizaDatos(self):
     query = "select pkUser,nombre,apellidos,edad,activo,sexo from crudtable where pkUser = " + str(self.selectedRow)
     bdData = run_query(query)
+    bdData = bdData[0]
     nombre = self.builder.get_object("form_nombre").set_text(bdData['nombre'])
     apellidos = self.builder.get_object("form_apellidos").set_text(bdData['apellidos'])
     edad = self.builder.get_object("form_edad").set_text(str(bdData['edad']))
