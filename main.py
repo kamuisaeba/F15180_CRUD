@@ -62,16 +62,13 @@ class Handler:
             col.add_attribute (cell, "text", index)    
     #Inicia el combo
     def init_combo (self):
-        """Setup a ComboBox or ComboBoxEntry based on a list of strings."""  
         query= "SELECT pkUser FROM crudtable;" 
-        micursor = Conexion.cursor()   
-        micursor.execute(query);
-        items = micursor.fetchall()
-        Conexion.commit()
-        micursor.close()
+        items = run_query(query,dict=0)
         cb = self.comboboxFila = self.builder.get_object("comboboxFila")         
-        model = Gtk.ListStore(int)
+        #model = Gtk.ListStore(int)
+        model = cb.get_model()
         for i in items:
+            print i
             model.append(i)
         cb.set_model(model)
         cell = Gtk.CellRendererText()
@@ -100,10 +97,7 @@ class Handler:
             self.errorMessage.show()
             return 0
         query = "delete from crudtable where pkUser = "+ str(self.selectedRow)
-        micursor = Conexion.cursor()
-        micursor.execute(query)
-        Conexion.commit()
-        micursor.close()
+        run_query(query)
         self.delform.hide()
         refresh(self)
         delete_from_combo(self,self.builder.get_object("comboboxFila"))
@@ -186,12 +180,9 @@ def refresh_combo(combo):
     model = combo.get_model()
     model.clear()
     query = "SELECT pkUser FROM crudtable;" 
-    micursor = Conexion.cursor()
-    micursor.execute(query)
-    bdData = micursor.fetchall()
-    Conexion.commit()
-    micursor.close()
+    bdData = run_query(query,0)
     for i in bdData:
+        print i
         model.append(i)
 
 
@@ -237,20 +228,13 @@ def create_edit_user(self,*args):
                 +""+str(activo)+","\
                 +"'"+sexo+"');"
 
-
-        micursor = Conexion.cursor()
-        micursor.execute(query)
-        Conexion.commit()
-        #add_to_combo(self,self.builder.get_object("comboboxFila"),micursor.lastrowid)
-        micursor.close()
+        run_query(query)
         refresh(self)
         self.form.hide()  
 
 def actualizaDatos(self):
     query = "select pkUser,nombre,apellidos,edad,activo,sexo from crudtable where pkUser = " + str(self.selectedRow)
-    micursor = Conexion.cursor(MySQLdb.cursors.DictCursor)  
-    micursor.execute(query);
-    bdData = micursor.fetchone()
+    bdData = run_query(query)
     nombre = self.builder.get_object("form_nombre").set_text(bdData['nombre'])
     apellidos = self.builder.get_object("form_apellidos").set_text(bdData['apellidos'])
     edad = self.builder.get_object("form_edad").set_text(str(bdData['edad']))
@@ -272,9 +256,7 @@ def actualizaDatos(self):
 def refresh(cb,*args):
     print 'refreshing'
     query = "select pkUser,nombre,apellidos,edad,activo,sexo from crudtable"
-    micursor = Conexion.cursor(MySQLdb.cursors.DictCursor)  
-    micursor.execute(query);
-    bdData = micursor.fetchall()
+    bdData = run_query(query)
     cb.store.clear()
     for currentData in bdData:
         print currentData
@@ -286,8 +268,6 @@ def refresh(cb,*args):
             currentData['activo'],
             currentData['sexo']
             ])
-    micursor.close()
-    Conexion.commit()
     refresh_combo(cb.builder.get_object("comboboxFila"))
 
 
@@ -298,6 +278,8 @@ def clear_form(window):
     window.builder.get_object("form_apellidos").set_text('')
     window.builder.get_object("form_edad").set_text('')
     window.builder.get_object("filaSeleccionada").set_text('')
+
+
 
 
 #Valida los datos del formulario
@@ -316,7 +298,20 @@ def validate_form(nombre,apellidos,edad,activo,sexo,*args):
     messageError = 'Error al validar los datos del usuario \n' + messageError
     return messageError
 
-if __name__ == '__main__':
+def run_query(query,dict=1):
     Conexion = MySQLdb.connect(host='localhost', user='acastillo', passwd ='acastillo', db='crud')  
+    if dict == 0:
+        micursor = Conexion.cursor()  
+    else:
+        micursor = Conexion.cursor(MySQLdb.cursors.DictCursor)  
+
+    micursor.execute(query);
+    bdData = micursor.fetchall()
+    micursor.close()
+    Conexion.commit()
+    return bdData
+
+
+if __name__ == '__main__':
     main()
 
